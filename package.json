@@ -59,7 +59,9 @@
     "recharts": "^2.9.0",
     "cmdk": "^0.2.0",
     "@radix-ui/react-dialog": "^1.0.4",
-    "vaul": "^0.7.9"
+    "vaul": "^0.7.9",
+    "zod": "^3.22.4"
+    
 
 
     
