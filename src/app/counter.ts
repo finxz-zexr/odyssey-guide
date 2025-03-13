@@ -1,8 +1,13 @@
 'use client'
 
+// Define the type for access logs
+interface AccessLog {
+  accessed_at: string;
+}
+
 // Mock data for local development
 let viewCount = 0;
-const accessLogs = [];
+const accessLogs: AccessLog[] = [];
 
 // Function to increment count and log access
 export async function incrementAndLog() {
@@ -10,7 +15,7 @@ export async function incrementAndLog() {
   viewCount += 1;
   
   // Add a new access log entry with current timestamp
-  const newLog = {
+  const newLog: AccessLog = {
     accessed_at: new Date().toISOString()
   };
   
@@ -33,3 +38,4 @@ export async function getStats() {
     recentAccess: [...accessLogs]
   };
 }
+
