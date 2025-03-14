@@ -1,52 +1,60 @@
 'use client'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Plus } from 'lucide-react'
-import { useEffect, useOptimistic, useState, useTransition } from 'react'
-import { getStats, incrementAndLog } from './counter'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 export default function Home() {
-  const [stats, setStats] = useState<{ count: number; recentAccess: { accessed_at: string }[] }>({
-    count: 0,
-    recentAccess: []
-  })
-  const [optimisticStats, setOptimisticStats] = useOptimistic(stats)
-  const [_, startTransition] = useTransition()
+  const [count, setCount] = useState(0)
+  const [recentAccess, setRecentAccess] = useState([])
 
   useEffect(() => {
-    getStats().then(setStats)
+    // Initialize with some data
+    setCount(0)
+    setRecentAccess([{ accessed_at: new Date().toISOString() }])
   }, [])
 
-  const handleClick = async () => {
-    startTransition(async () => {
-      setOptimisticStats({
-        count: optimisticStats.count + 1,
-        recentAccess: [{ accessed_at: new Date().toISOString() }, ...optimisticStats.recentAccess.slice(0, 4)]
-      })
-      const newStats = await incrementAndLog()
-      setStats(newStats)
-    })
+  const handleIncrement = () => {
+    setCount(count + 1)
+    const newLog = { accessed_at: new Date().toISOString() }
+    setRecentAccess([newLog, ...recentAccess.slice(0, 4)])
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-8 sm:p-24">
-      <Card className="p-6 sm:p-8 w-full max-w-sm">
-        <p className="text-2xl font-medium text-center mb-4">Views: {optimisticStats.count}</p>
-        <div className="flex justify-center mb-4">
-          <Button onClick={handleClick}>
-            <Plus className="h-4 w-4 mr-2" />
+    <main className="flex min-h-screen flex-col items-center justify-center p-8">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-6">Odyssey Guide</h1>
+        
+        <p className="text-xl font-medium text-center mb-4">Views: {count}</p>
+        
+        <div className="flex justify-center mb-6">
+          <button 
+            onClick={handleIncrement}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+          >
+            <span className="mr-2">+</span>
             Increment
-          </Button>
+          </button>
         </div>
-        <ScrollArea className="h-[100px]">
-          {optimisticStats.recentAccess.map((log, i) => (
-            <div key={i} className="text-sm text-muted-foreground text-center">
-              {new Date(log.accessed_at).toLocaleString()}
-            </div>
-          ))}
-        </ScrollArea>
-      </Card>
+
+        <div className="mb-6">
+          <h2 className="text-lg font-medium mb-2">Recent Access:</h2>
+          <div className="max-h-[100px] overflow-y-auto border rounded-md p-2">
+            {recentAccess.map((log, i) => (
+              <div key={i} className="text-sm text-gray-600 py-1">
+                {new Date(log.accessed_at).toLocaleString()}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <nav className="flex flex-col space-y-2">
+          <Link href="/books" className="text-blue-600 hover:underline">
+            Browse Books
+          </Link>
+          <Link href="/about" className="text-blue-600 hover:underline">
+            About
+          </Link>
+        </nav>
+      </div>
     </main>
   )
 }
