@@ -1,109 +1,56 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
+'use client'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
-// Function to get book content
-async function getBookContent(bookNumber) {
-  try {
-    const filePath = path.join(process.cwd(), 'src/content', `book${bookNumber}.md`);
-    const fileContents = fs.readFileSync(filePath, 'utf8');
+export default function BookPage({ params }) {
+  const { bookNumber } = params
+  const [content, setContent] = useState('')
+  
+  useEffect(() => {
+    // Simulate fetching book content
+    const bookContent = `This is the content of Book ${bookNumber} of The Odyssey.
     
-    // Use gray-matter to parse the markdown metadata
-    const { content } = matter(fileContents);
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, 
+    nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget ultricies nisl 
+    nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl 
+    aliquam nisl, eget ultricies nisl nisl eget nisl.
     
-    // Use remark to convert markdown into HTML string
-    const processedContent = await remark()
-      .use(html)
-      .process(content);
+    Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, 
+    eget ultricies nisl nisl eget nisl. Nullam auctor, nisl eget ultricies 
+    tincidunt, nisl nisl aliquam nisl, eget ultricies nisl nisl eget nisl.`
     
-    const contentHtml = processedContent.toString();
-    
-    return contentHtml;
-  } catch (error) {
-    console.error(`Error reading book ${bookNumber}:`, error);
-    return null;
-  }
-}
-
-// Function to get book title
-function getBookTitle(bookNumber) {
-  const titles = [
-    "Athena Inspires the Prince",
-    "Telemachus Sets Sail",
-    "King Nestor Remembers",
-    "The King and Queen of Sparta",
-    "Odysseus—Nymph and Shipwreck",
-    "The Princess and the Stranger",
-    "Phaeacia's Halls and Gardens",
-    "A Day for Songs and Contests",
-    "In the One-Eyed Giant's Cave",
-    "The Bewitching Queen of Aeaea",
-    "The Kingdom of the Dead",
-    "The Cattle of the Sun",
-    "Ithaca at Last",
-    "The Loyal Swineherd",
-    "The Prince Sets Sail for Home",
-    "Father and Son",
-    "Stranger at the Gates",
-    "The Beggar-King of Ithaca",
-    "The Queen and the Beggar",
-    "Portents Gather",
-    "Odysseus Strings His Bow",
-    "Slaughter in the Hall",
-    "The Great Rooted Bed",
-    "Peace"
-  ];
-  
-  return titles[bookNumber - 1] || "Unknown Book";
-}
-
-export default async function BookPage({ params }) {
-  const bookNumber = parseInt(params.bookNumber, 10);
-  
-  // Validate book number
-  if (isNaN(bookNumber) || bookNumber < 1 || bookNumber > 24) {
-    notFound();
-  }
-  
-  const bookContent = await getBookContent(bookNumber);
-  
-  if (!bookContent) {
-    notFound();
-  }
-  
-  const bookTitle = getBookTitle(bookNumber);
-  const prevBook = bookNumber > 1 ? bookNumber - 1 : null;
-  const nextBook = bookNumber < 24 ? bookNumber + 1 : null;
+    setContent(bookContent)
+  }, [bookNumber])
   
   return (
-    <div className="book-detail">
-      <div className="book-header">
-        <h1>Book {bookNumber}: {bookTitle}</h1>
-      </div>
-      
-      <div className="book-content" dangerouslySetInnerHTML={{ __html: bookContent }} />
-      
-      <div className="book-navigation">
-        {prevBook && (
-          <Link href={`/books/${prevBook}`} className="btn">
-            ← Book {prevBook}: {getBookTitle(prevBook)}
-          </Link>
-        )}
+    <main className="flex min-h-screen flex-col items-center p-8">
+      <div className="w-full max-w-2xl">
+        <h1 className="text-3xl font-bold mb-4">Book {bookNumber}</h1>
         
-        <Link href="/books" className="btn">
-          All Books
-        </Link>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="prose">
+            {content.split('\n').map((paragraph, index) => (
+              <p key={index} className="mb-4">{paragraph}</p>
+            ))}
+          </div>
+        </div>
         
-        {nextBook && (
-          <Link href={`/books/${nextBook}`} className="btn">
-            Book {nextBook}: {getBookTitle(nextBook)} →
+        <div className="mt-8 flex justify-between">
+          {parseInt(bookNumber) > 1 && (
+            <Link href={`/books/${parseInt(bookNumber) - 1}`} className="text-blue-600 hover:underline">
+              Previous Book
+            </Link>
+          )}
+          <Link href="/books" className="text-blue-600 hover:underline">
+            Back to Books
           </Link>
-        )}
+          {parseInt(bookNumber) < 24 && (
+            <Link href={`/books/${parseInt(bookNumber) + 1}`} className="text-blue-600 hover:underline">
+              Next Book
+            </Link>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    </main>
+  )
 }
